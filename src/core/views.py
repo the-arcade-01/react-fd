@@ -6,18 +6,20 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 # Create your views here.
+from .serializers import PostSerializer
+from .models import Post
 
 class TestView(APIView):
     def get(self, request, *args, **kwargs):
-        data = {
-            'name':'Aashish',
-            'age':19,
-        }
-        return Response(data);
+        qs = Post.objects.all()
+        # post = qs.first()
+        # serializer = PostSerializer(post)
+        serializer = PostSerializer(qs,many=True)
+        return Response(serializer.data);
 
-# def test_view(request):
-#     data = {
-#         'name':'Aashish',
-#         'age':19,
-#     }
-#     return JsonResponse(data)
+    def post(self,request,*args,**kwargs):
+        serializer = PostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
